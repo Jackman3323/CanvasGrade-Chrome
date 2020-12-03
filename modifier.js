@@ -288,10 +288,14 @@ function main(){
     }
     console.log(finalGrade);
     let letterGrade = displayFinalGrade(finalGrade);
-    chrome.storage.sync.set({nameOfClass: letterGrade}, function(){
+    chrome.storage.local.set({nameOfClass: letterGrade}, function(){
         console.log("Supposedly, we did it...");
         console.log(nameOfClass + letterGrade);
     });
+    chrome.storage.local.get([nameOfClass], function(result) {
+        console.log('Class name is: ' + result.key)
+        console.log('Value is currently: ' + result.value);
+    })
 }
 
 const mutationObserver = new MutationObserver(function (mutations) {
