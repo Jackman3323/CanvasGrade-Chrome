@@ -1,7 +1,9 @@
 /*
 This is the main file.
 */
-
+chrome.storage.local.set({'Test': '5'}, function(){
+    console.log("In theory, test complete.");
+});
 console.log("MODIFIER.JS HAS BEEN ACTIVATED");
 chrome.storage.sync.set({'urmom':'urmom'},function(){});
 let table = document.querySelector("#grades_summary > tbody");
