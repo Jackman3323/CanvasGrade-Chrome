@@ -1,9 +1,16 @@
 /*
 This is the main file.
 */
-chrome.storage.local.set({'Test': '5'}, function(){
-    console.log("In theory, test complete.");
-});
+function testStorage() {
+    chrome.storage.local.set({['test']: 'A+'}, function () {
+        console.log("Test initiated.")
+    });
+    chrome.storage.local.get(['test'], function(result){
+        console.log("Attempting to get A+: " + result.value);
+        console.log("Key for troubleshooting: " + result.key);
+    })
+}
+testStorage();
 console.log("MODIFIER.JS HAS BEEN ACTIVATED");
 chrome.storage.sync.set({'urmom':'urmom'},function(){});
 let table = document.querySelector("#grades_summary > tbody");
@@ -290,7 +297,7 @@ function main(){
     }
     console.log(finalGrade);
     let letterGrade = displayFinalGrade(finalGrade);
-    chrome.storage.local.set({nameOfClass: letterGrade}, function(){
+    chrome.storage.local.set({[nameOfClass]: letterGrade}, function(){
         console.log("Supposedly, we did it...");
         console.log(nameOfClass + letterGrade);
     });

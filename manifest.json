@@ -7,7 +7,7 @@
   "author": "Jack Hughes",
   "permissions": [
     "https://kentdenver.instructure.com/courses/*/grades",
-    "activeTab",
+    "tabs",
     "storage"
   ],
   "background": {
