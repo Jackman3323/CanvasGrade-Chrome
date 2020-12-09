@@ -1,16 +1,7 @@
 /*
 This is the main file.
 */
-function testStorage() {
-    chrome.storage.local.set({['test']: 'A+'}, function () {
-        console.log("Test initiated.")
-    });
-    chrome.storage.local.get(['test'], function(result){
-        console.log("Attempting to get A+: " + result.value);
-        console.log("Key for troubleshooting: " + result.key);
-    })
-}
-testStorage();
+
 console.log("MODIFIER.JS HAS BEEN ACTIVATED");
 chrome.storage.sync.set({'urmom':'urmom'},function(){});
 let table = document.querySelector("#grades_summary > tbody");
@@ -19,7 +10,9 @@ let totalPoints = 0;
 let earnedPoints = 0;
 let weighted = (document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2").textContent !== "Course assignments are not weighted.")
 const shortTablePath = document.getElementById("grades_summary");
-
+let numRuns = 0;
+let nameOfClass;
+let letterGrade;
 //This method returns true if the assignment contains the "grade was changed" span
 function wasChanged(tr){
     let htmlPath = "#" + tr.id + " > td.assignment_score > div > span.tooltip > span";
@@ -234,11 +227,23 @@ function updateTotalRow(){
         }
     })
 }
-
+//This method stores grade info
+function storeInfo(key, value){
+    chrome.storage.sync.set({key: value}, function(){
+       console.log("STORED");
+    });
+}
+//This is a test method for chrome.storage.
+function getInfo(key){
+    chrome.storage.sync.get([key], function(result){
+       console.log("Key: " + result.key);
+       console.log("Value: " + result.value);
+    });
+}
 //This method displays the final grade that is passed into it
 function displayFinalGrade(grade){
     //LetterGrade Section:
-    let letterGrade = "F";
+    letterGrade = "F";
     if(grade >= 60 && grade < 63){letterGrade = "(D-)";}
     else if(grade >= 63 && grade < 67) {letterGrade = "(D)";}
     else if(grade >= 67 && grade < 70) {letterGrade = "(D+)";}
@@ -282,31 +287,26 @@ function main(){
         finalGrade = calculatePercentage(getEarnedPoints(),getTotalPoints());
         updateTotalRow();
     }
-    let nameOfClass;
+    nameOfClass = "CANVAS_CLASS: ";
     let nameOfClassFull = String(document.querySelector("#breadcrumbs > ul > li:nth-child(2) > a > span").textContent);
     if(nameOfClassFull.indexOf("-") !== -1){
         let nameOfClassArray = nameOfClassFull.split("-");
-        nameOfClass = nameOfClassArray[1];
+        nameOfClass += nameOfClassArray[1];
     }
     else{
-        nameOfClass = nameOfClassFull;
+        nameOfClass+= nameOfClassFull;
     }
     let isHonors = nameOfClass.indexOf(" Honors") !== -1 || nameOfClass.indexOf(" honors") !== -1 || nameOfClass.indexOf(" AP") !== -1;
     if(isHonors){
-        nameOfClass += '+';
+        nameOfClass += "|+"; //DESIGNATES HONORS
+    }
+    else{
+        nameOfClass += "|"; //DESIGNATES NOT HONORS
     }
     console.log(finalGrade);
-    let letterGrade = displayFinalGrade(finalGrade);
-    chrome.storage.local.set({[nameOfClass]: letterGrade}, function(){
-        console.log("Supposedly, we did it...");
-        console.log(nameOfClass + letterGrade);
-    });
-    chrome.storage.local.get([nameOfClass], function(result) {
-        console.log('Class name is: ' + result.key)
-        console.log('Value is currently: ' + result.value);
-    })
+    numRuns++;
 }
-
+this.storeInfo(nameOfClass,letterGrade);
 const mutationObserver = new MutationObserver(function (mutations) {
     let done = false; //Variable to shoddily improve performance:
     mutationObserver.disconnect();
