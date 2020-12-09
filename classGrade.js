@@ -5,11 +5,11 @@ class classGrade{
     letterGrade;
     honorsBool;
     gpaScaleFloat;
-    nameOfClass;
+    className;
 
     constructor(nameOfClass, letterGrade, isHonors){
         this.letterGrade = letterGrade;
-        this.nameOfClass = nameOfClass;
+        this.className = nameOfClass;
         this.honorsBool = isHonors;
         this.gpaScaleFloat = 0.0;
     }
@@ -67,7 +67,7 @@ class classGrade{
     }
 
     getName(){
-        return this.nameOfClass;
+        return this.className;
     }
 
 
