@@ -119,7 +119,7 @@ function createObj(nameOfClass, letterGrade) {
     for (let i = 0; i < letterGrade.length; i++) {
         if (letterGrade.charAt(i) === '(' || letterGrade.charAt(i) === ')') {
             letterGrade = letterGrade.replace(letterGrade.charAt(i), '');
-            //Remove parentheses
+            //Remove parentheses.
         }
     }
     console.log(letterGrade);
