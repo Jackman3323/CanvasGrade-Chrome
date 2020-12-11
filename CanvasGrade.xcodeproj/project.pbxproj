@@ -49,7 +49,7 @@
 
 /* Begin PBXFileReference section */
 		A3A838AF258300CC00F7DED1 /* CanvasGrade.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CanvasGrade.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A3A838B2258300CC00F7DED1 /* CanvasGrade.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CanvasGrade.entitlements; sourceTree = "<group>"; };
+		A3A838B2258300CC00F7DED1 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = "/Users/jackhughes/WebstormProjects/CanvasGrade/CanvasGrade Extension/Resources/icon.png"; sourceTree = "<absolute>"; };
 		A3A838B3258300CC00F7DED1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A3A838B6258300CC00F7DED1 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		A3A838B8258300CC00F7DED1 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -60,9 +60,9 @@
 		A3A838C9258300CD00F7DED1 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		A3A838CB258300CD00F7DED1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A3A838CC258300CD00F7DED1 /* CanvasGrade_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = CanvasGrade_Extension.entitlements; sourceTree = "<group>"; };
-		A3A838D7258300CE00F7DED1 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = "/Users/jackhughes/WebstormProjects/Chrome-CanvasGrade/CanvasGrade Extension/Resources/icon.png"; sourceTree = "<absolute>"; };
-		A3A838D8258300CE00F7DED1 /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = "/Users/jackhughes/WebstormProjects/Chrome-CanvasGrade/CanvasGrade Extension/Resources/popup.js"; sourceTree = "<absolute>"; };
-		A3A838D9258300CE00F7DED1 /* modifier.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = modifier.js; path = "/Users/jackhughes/WebstormProjects/Chrome-CanvasGrade/CanvasGrade Extension/Resources/modifier.js"; sourceTree = "<absolute>"; };
+		A3A838D7258300CE00F7DED1 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = icon.png; path = "/Users/jackhughes/WebstormProjects/CanvasGrade/CanvasGrade Extension/Resources/icon.png"; sourceTree = "<absolute>"; };
+		A3A838D8258300CE00F7DED1 /* popup.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = popup.js; path = "/Users/jackhughes/WebstormProjects/CanvasGrade/CanvasGrade Extension/Resources/popup.js"; sourceTree = "<absolute>"; };
+		A3A838D9258300CE00F7DED1 /* modifier.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = modifier.js; path = "/Users/jackhughes/WebstormProjects/CanvasGrade/CanvasGrade Extension/Resources/modifier.js"; sourceTree = "<absolute>"; };
 		A3A838DA258300CE00F7DED1 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
 		A3A838DB258300CE00F7DED1 /* popup.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = popup.html; path = Resources/popup.html; sourceTree = "<group>"; };
 		A3A838DC258300CE00F7DED1 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = Style.css; path = Resources/Style.css; sourceTree = "<group>"; };
@@ -110,7 +110,7 @@
 		A3A838B1258300CC00F7DED1 /* CanvasGrade */ = {
 			isa = PBXGroup;
 			children = (
-				A3A838B2258300CC00F7DED1 /* CanvasGrade.entitlements */,
+				A3A838B2258300CC00F7DED1 /* icon.png */,
 				A3A838B3258300CC00F7DED1 /* AppDelegate.swift */,
 				A3A838B5258300CC00F7DED1 /* Main.storyboard */,
 				A3A838B8258300CC00F7DED1 /* ViewController.swift */,
