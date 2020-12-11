@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BranchesTreeState">
+    <expand />
+    <select />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9615b52d-0e26-4b27-9a0f-cfc06b87e30a" name="Default Changelist" comment="Chrome branch setup." />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="JavaScript File" />
+        <option value="CSS File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="CHROME-Master" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectId" id="1j9LLh3XI5sGPbJaY2TYMV0Tx0P" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="vue.rearranger.settings.migration" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9615b52d-0e26-4b27-9a0f-cfc06b87e30a" name="Default Changelist" comment="" />
+      <created>1603211306693</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1603211306693</updated>
+      <workItem from="1603211307777" duration="1447000" />
+      <workItem from="1605299850951" duration="2222000" />
+      <workItem from="1605559499910" duration="2769000" />
+      <workItem from="1605568641019" duration="7044000" />
+      <workItem from="1605630518151" duration="505000" />
+      <workItem from="1606102511793" duration="2229000" />
+      <workItem from="1607016210765" duration="3277000" />
+      <workItem from="1607535115345" duration="891000" />
+      <workItem from="1607541846639" duration="8928000" />
+      <workItem from="1607623380860" duration="21934000" />
+      <workItem from="1607649074265" duration="814000" />
+    </task>
+    <task id="LOCAL-00001" summary="INITIAL PUSH--CHROME REPOSITORY">
+      <created>1606102647896</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1606102647896</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Attempting bugfix--chrome.storage">
+      <created>1607016945192</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1607016945192</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Attempting bugfix--chrome.storage--take 2">
+      <created>1607017400408</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1607017400408</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Attempting bugfix--chrome.storage--take 3">
+      <created>1607018191401</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1607018191401</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Wow I hate storage">
+      <created>1607544909871</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1607544909871</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Storage is the worst">
+      <created>1607548962916</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1607548962916</updated>
+    </task>
+    <task id="LOCAL-00007" summary="I DID IT!! GPA IS DONE!!">
+      <created>1607649156581</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1607649156581</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Chrome branch setup.">
+      <created>1607649217774</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1607649217774</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="false" />
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="INITIAL PUSH--CHROME REPOSITORY" />
+    <MESSAGE value="Attempting bugfix--chrome.storage" />
+    <MESSAGE value="Attempting bugfix--chrome.storage--take 2" />
+    <MESSAGE value="Attempting bugfix--chrome.storage--take 3" />
+    <MESSAGE value="Wow I hate storage" />
+    <MESSAGE value="Storage is the worst" />
+    <MESSAGE value="I DID IT!! GPA IS DONE!!" />
+    <MESSAGE value="Chrome branch setup." />
+    <option name="LAST_COMMIT_MESSAGE" value="Chrome branch setup." />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="720" y="1499" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1" timestamp="1607630979907">
+      <screen x="77" y="1080" width="1792" height="1120" />
+    </state>
+    <state x="720" y="1499" key="ANALYSIS_DLG_com.intellij.analysis.BaseAnalysisAction$1/0.0.1920.1080/77.1080.1792.1120@77.1080.1792.1120" timestamp="1607630979907" />
+    <state x="548" y="287" key="IDE.errors.dialog" timestamp="1605574859469">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="548" y="287" key="IDE.errors.dialog/0.0.1920.1080/77.1080.1792.1120@0.0.1920.1080" timestamp="1605574859469" />
+    <state x="600" y="1367" key="Vcs.Push.Dialog.v2" timestamp="1607649220630">
+      <screen x="77" y="1080" width="1792" height="1120" />
+    </state>
+    <state x="560" y="277" key="Vcs.Push.Dialog.v2/0.0.1920.1080/77.1080.1792.1120@0.0.1920.1080" timestamp="1607016948872" />
+    <state x="600" y="1367" key="Vcs.Push.Dialog.v2/0.0.1920.1080/77.1080.1792.1120@77.1080.1792.1120" timestamp="1607649220630" />
+    <state x="774" y="1558" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1607649467481">
+      <screen x="77" y="1080" width="1792" height="1120" />
+    </state>
+    <state x="774" y="1558" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.25.1920.1055/77.1080.1792.1120@77.1080.1792.1120" timestamp="1607649467481" />
+    <state x="782" y="438" key="git4idea.remote.GitConfigureRemotesDialog" timestamp="1607016323123">
+      <screen x="0" y="0" width="1920" height="1080" />
+    </state>
+    <state x="782" y="438" key="git4idea.remote.GitConfigureRemotesDialog/0.0.1920.1080/77.1080.1792.1120@0.0.1920.1080" timestamp="1607016323123" />
+    <state x="638" y="1331" width="670" height="676" key="search.everywhere.popup" timestamp="1607643359654">
+      <screen x="77" y="1080" width="1792" height="1120" />
+    </state>
+    <state x="601" y="242" width="718" height="652" key="search.everywhere.popup/0.0.1920.1080/77.1080.1792.1120@0.0.1920.1080" timestamp="1607544524745" />
+    <state x="638" y="1331" width="670" height="676" key="search.everywhere.popup/0.0.1920.1080/77.1080.1792.1120@77.1080.1792.1120" timestamp="1607643359654" />
+  </component>
+</project>
