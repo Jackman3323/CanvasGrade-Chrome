@@ -1,25 +1,45 @@
 /*
 This is the main file.
 */
-function testStorage() {
-    chrome.storage.local.set({['test']: 'A+'}, function () {
-        console.log("Test initiated.")
-    });
-    chrome.storage.local.get(['test'], function(result){
-        console.log("Attempting to get A+: " + result.value);
-        console.log("Key for troubleshooting: " + result.key);
-    })
-}
-testStorage();
+
 console.log("MODIFIER.JS HAS BEEN ACTIVATED");
-chrome.storage.sync.set({'urmom':'urmom'},function(){});
 let table = document.querySelector("#grades_summary > tbody");
 let outputField = document.querySelector("#student-grades-final");
 let totalPoints = 0;
 let earnedPoints = 0;
 let weighted = (document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2").textContent !== "Course assignments are not weighted.")
 const shortTablePath = document.getElementById("grades_summary");
+let numRuns = 0;
+let finalGrade;
+let nameOfClass = '';
+let nameOfClassFull = String(document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a > span').textContent);
 
+if(nameOfClassFull.indexOf('-') !== -1){
+    let nameOfClassArray = nameOfClassFull.split('-');
+    nameOfClass += nameOfClassArray[1];
+}
+else{
+    nameOfClass+= nameOfClassFull;
+}
+
+let isHonors = nameOfClass.includes(' Honors') ||
+    nameOfClass.includes(' honors') ||
+    nameOfClass.includes(' AP') ||
+    nameOfClass.includes('AP ') ||
+    nameOfClass.includes('Honors ') ||
+    nameOfClass.includes('honors ');
+
+if(isHonors){
+    nameOfClass += '__HONORS'; //DESIGNATES HONORS
+}
+else{
+    nameOfClass += '__NORMAL'; //DESIGNATES NOT HONORS
+}
+nameOfClass = nameOfClass.split(' ').join('-');
+let updateCode = document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a').href;
+updateCode = updateCode.split('/')[4];
+nameOfClass += '___' + updateCode;
+let letterGrade;
 //This method returns true if the assignment contains the "grade was changed" span
 function wasChanged(tr){
     let htmlPath = "#" + tr.id + " > td.assignment_score > div > span.tooltip > span";
@@ -238,7 +258,7 @@ function updateTotalRow(){
 //This method displays the final grade that is passed into it
 function displayFinalGrade(grade){
     //LetterGrade Section:
-    let letterGrade = "F";
+    letterGrade = "F";
     if(grade >= 60 && grade < 63){letterGrade = "(D-)";}
     else if(grade >= 63 && grade < 67) {letterGrade = "(D)";}
     else if(grade >= 67 && grade < 70) {letterGrade = "(D+)";}
@@ -257,7 +277,7 @@ function displayFinalGrade(grade){
 function main(){
     console.log("PROCESS ENGAGED");
     //main section
-    let finalGrade = 0.0;
+    finalGrade = 0.0;
     if(weighted) {
         //Class is weighted
         //Running total of grade
@@ -282,42 +302,39 @@ function main(){
         finalGrade = calculatePercentage(getEarnedPoints(),getTotalPoints());
         updateTotalRow();
     }
-    let nameOfClass;
-    let nameOfClassFull = String(document.querySelector("#breadcrumbs > ul > li:nth-child(2) > a > span").textContent);
-    if(nameOfClassFull.indexOf("-") !== -1){
-        let nameOfClassArray = nameOfClassFull.split("-");
-        nameOfClass = nameOfClassArray[1];
-    }
-    else{
-        nameOfClass = nameOfClassFull;
-    }
-    let isHonors = nameOfClass.indexOf(" Honors") !== -1 || nameOfClass.indexOf(" honors") !== -1 || nameOfClass.indexOf(" AP") !== -1;
-    if(isHonors){
-        nameOfClass += '+';
-    }
     console.log(finalGrade);
-    let letterGrade = displayFinalGrade(finalGrade);
-    chrome.storage.local.set({[nameOfClass]: letterGrade}, function(){
-        console.log("Supposedly, we did it...");
-        console.log(nameOfClass + letterGrade);
-    });
-    chrome.storage.local.get([nameOfClass], function(result) {
-        console.log('Class name is: ' + result.key)
-        console.log('Value is currently: ' + result.value);
-    })
+    letterGrade = displayFinalGrade(finalGrade);
+    return letterGrade;
 }
 
 const mutationObserver = new MutationObserver(function (mutations) {
     let done = false; //Variable to shoddily improve performance:
+    //Storage variables:
+    let dataObj = {};
+    let nameOfClassStorage;
+    let letterGradeStorage;
     mutationObserver.disconnect();
     // No longer runs six times per textbox edit--only once (or in edge cases, twice)
     // Does this by only recalculating on the first mutation
     mutations.forEach(function (mutation) {
         if(!done) {
-            main(mutationObserver);
+            letterGrade = main(mutationObserver);
+            console.log(letterGrade);
+            nameOfClassStorage = 'CanvasClass_' + nameOfClass;
+            console.log(nameOfClassStorage);
+            letterGradeStorage =  letterGrade;
+            dataObj[nameOfClassStorage] = letterGradeStorage;
         }
         done = true;
     });
+
+        chrome.storage.sync.set(dataObj);
+        //chrome.storage.local.set({[throwVar]: throwVal2}, function(){});
+        chrome.storage.sync.get(dataObj, function (result) {
+            console.log(result[nameOfClassStorage]);
+        });
+
+
     mutationObserver.observe(shortTablePath, {
         childList: true,
         subtree: true
