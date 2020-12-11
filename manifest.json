@@ -1,14 +1,15 @@
 {
   "manifest_version": 2,
   "name": "CanvasGrade",
-  "version": "1.0.10",
-  "version_name": "1.0.10 Beta",
+  "version": "2.0",
+  "version_name": "2.0",
   "description": "Displays hidden grades",
   "author": "Jack Hughes",
   "permissions": [
     "https://kentdenver.instructure.com/courses/*/grades",
     "tabs",
-    "storage"
+    "storage",
+    "windows"
   ],
   "background": {
     "scripts": ["background.js"],

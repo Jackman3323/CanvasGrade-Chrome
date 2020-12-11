@@ -18,4 +18,15 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
     }
 });
 
-chrome.storage.local.set({'urmom':'urmom'},function(){});
+chrome.browserAction.onClicked.addListener(function(tab){
+    chrome.windows.create({
+        url: chrome.runtime.getURL("popup.html"),
+        height: 465,
+        width: 310,
+        type: "popup"
+    }, function(win){
+        chrome.tabs.executeScript({
+            file: 'popup.js'
+        });
+    });
+})

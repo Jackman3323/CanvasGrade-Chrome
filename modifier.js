@@ -3,7 +3,6 @@ This is the main file.
 */
 
 console.log("MODIFIER.JS HAS BEEN ACTIVATED");
-chrome.storage.sync.set({'urmom':'urmom'},function(){});
 let table = document.querySelector("#grades_summary > tbody");
 let outputField = document.querySelector("#student-grades-final");
 let totalPoints = 0;
@@ -12,22 +11,34 @@ let weighted = (document.querySelector("#assignments-not-weighted > div:nth-chil
 const shortTablePath = document.getElementById("grades_summary");
 let numRuns = 0;
 let finalGrade;
-let nameOfClass = "CANVAS_CLASS: ";
-let nameOfClassFull = String(document.querySelector("#breadcrumbs > ul > li:nth-child(2) > a > span").textContent);
-if(nameOfClassFull.indexOf("-") !== -1){
-    let nameOfClassArray = nameOfClassFull.split("-");
+let nameOfClass = '';
+let nameOfClassFull = String(document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a > span').textContent);
+
+if(nameOfClassFull.indexOf('-') !== -1){
+    let nameOfClassArray = nameOfClassFull.split('-');
     nameOfClass += nameOfClassArray[1];
 }
 else{
     nameOfClass+= nameOfClassFull;
 }
-let isHonors = nameOfClass.indexOf(" Honors") !== -1 || nameOfClass.indexOf(" honors") !== -1 || nameOfClass.indexOf(" AP") !== -1;
+
+let isHonors = nameOfClass.includes(' Honors') ||
+    nameOfClass.includes(' honors') ||
+    nameOfClass.includes(' AP') ||
+    nameOfClass.includes('AP ') ||
+    nameOfClass.includes('Honors ') ||
+    nameOfClass.includes('honors ');
+
 if(isHonors){
-    nameOfClass += "|+"; //DESIGNATES HONORS
+    nameOfClass += '__HONORS'; //DESIGNATES HONORS
 }
 else{
-    nameOfClass += "|"; //DESIGNATES NOT HONORS
+    nameOfClass += '__NORMAL'; //DESIGNATES NOT HONORS
 }
+nameOfClass = nameOfClass.split(' ').join('-');
+let updateCode = document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a').href;
+updateCode = updateCode.split('/')[4];
+nameOfClass += '___' + updateCode;
 let letterGrade;
 //This method returns true if the assignment contains the "grade was changed" span
 function wasChanged(tr){
@@ -292,22 +303,37 @@ function main(){
         updateTotalRow();
     }
     console.log(finalGrade);
-    numRuns++;
     letterGrade = displayFinalGrade(finalGrade);
     return letterGrade;
 }
 
 const mutationObserver = new MutationObserver(function (mutations) {
     let done = false; //Variable to shoddily improve performance:
+    //Storage variables:
+    let dataObj = {};
+    let nameOfClassStorage;
+    let letterGradeStorage;
     mutationObserver.disconnect();
     // No longer runs six times per textbox edit--only once (or in edge cases, twice)
     // Does this by only recalculating on the first mutation
     mutations.forEach(function (mutation) {
         if(!done) {
-            main(mutationObserver);
+            letterGrade = main(mutationObserver);
+            console.log(letterGrade);
+            nameOfClassStorage = 'CanvasClass_' + nameOfClass;
+            console.log(nameOfClassStorage);
+            letterGradeStorage =  letterGrade;
+            dataObj[nameOfClassStorage] = letterGradeStorage;
         }
         done = true;
     });
+
+        chrome.storage.sync.set(dataObj);
+        //chrome.storage.local.set({[throwVar]: throwVal2}, function(){});
+        chrome.storage.sync.get(dataObj, function (result) {
+            console.log(result[nameOfClassStorage]);
+        });
+
 
     mutationObserver.observe(shortTablePath, {
         childList: true,
@@ -319,19 +345,5 @@ mutationObserver.observe(shortTablePath, {
     childList: true,
     subtree: true
 });
-letterGrade = main(mutationObserver);
-chrome.storage.local.set({'value': '5'}, function(){});
-chrome.storage.local.set({'value': '10'}, function(){});
-chrome.storage.local.get(['value'], function(result){
-   console.log(result.value);
-});
-let weirdVar = this.nameOfClass;
-chrome.storage.local.set({'test': letterGrade}, function(){
-    console.log("STORED.");
-    console.log('test');
-});
-chrome.storage.local.get(['test'], function(result){
-    console.log("Attempt: " + 'test');
-    console.log(result.key);
-    console.log(result.value);
-});
+
+main(mutationObserver);

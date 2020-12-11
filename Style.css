@@ -1,0 +1,65 @@
+.classLine{
+    height: 2px;
+    border-width: 0;
+    color: black;
+    background-color: red;
+    display: block;
+    margin-top: 4px;
+    margin-bottom: 0;
+}
+.CanvasGradeClass{
+    display: flex;
+    width: 300px;
+    height: 20px;
+}
+.CanvasButtonClass{
+    display:flex;
+    width:300px;
+    height:20px;
+    padding-top: 10px;
+}
+.updateButton{
+    border: none;
+    border-radius: 8px;
+    background-color: lightskyblue;
+    height: 20px;
+    width: 133px;
+    margin-right: 2px;
+}
+.removeButton{
+    border: none;
+    border-radius: 8px;
+    background-color: lightskyblue;
+    width: 133px;
+    height: 20px;
+    margin-left: 2px;
+}
+.refreshButton{
+    padding-bottom: -10px;
+    height: 20px;
+}
+.nameOfClass{
+    float:left;
+    width: 150px;
+}
+.GPAOfClass{
+    float: right;
+    width: 40px;
+}
+.grade{
+    float: right;
+    text-align: center;
+}
+.gradeOfClass{
+    width: 80px;
+    float: right;
+}
+.gpa{
+    text-align:right;
+}
+.name{
+    vertical-align: middle;
+}
+.removeButton{
+    float: right;
+}
