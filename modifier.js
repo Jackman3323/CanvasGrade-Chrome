@@ -59,14 +59,14 @@ function getTotalPoints(){
             //Assembles full HTML path that includes the id of the table row
             let fullPath = "#" + tr.id + htmlPath;
             //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent);
+            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
         }
         else if(rowName === "student_assignment editable" && wasChanged(tr)){
             //This is a not graded assignment that the user has entered a what if score into
             //Thus we must now treat it as graded and count its points.
             let fullPath = "#" + tr.id + htmlPath;
             //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent);
+            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
         }
     })
     return counter;
@@ -85,14 +85,14 @@ function getEarnedPoints(){
             //Assembles full HTML path that includes the id of the table row
             let fullPath = "#" + tr.id + htmlPath;
             //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent);
+            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
         }
         else if(rowName === "student_assignment editable" && wasChanged(tr)){
             //This is a not graded assignment that the user has entered a what if score into
             //Thus we must now treat it as graded and count its points.
             let fullPath = "#" + tr.id + htmlPath;
             //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent);
+            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
         }
     })
     return counter;
@@ -115,7 +115,7 @@ function getCategoryTotalPoints(category){
                 //Assembles full HTML path that includes the id of the table row
                 let fullPath = "#" + tr.id + htmlPath;
                 //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent);
+                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
             }
         }
         else if(rowName === "student_assignment editable" && wasChanged(tr)){
@@ -125,7 +125,7 @@ function getCategoryTotalPoints(category){
                 //Thus we must now treat it as graded and count its points.
                 let fullPath = "#" + tr.id + htmlPath;
                 //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent);
+                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
             }
         }
     })
@@ -148,17 +148,17 @@ function getCategoryEarnedPoints(category){
                 //Assembles full HTML path that includes the id of the table row
                 let fullPath = "#" + tr.id + htmlPath;
                 //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent);
+                counter += parseFloat(document.querySelector(fullPath).replaceAll(',',''));
             }
         }
         else if(rowName === "student_assignment editable" && wasChanged(tr)){
-            let curCategory = document.querySelector(path).textContent; //Gets the category of this assignment
+            let curCategory = document.querySelector(htmlPath).textContent; //Gets the category of this assignment
             if(curCategory === category){
                 //This is a not graded assignment that the user has entered a what if score into
                 //Thus we must now treat it as graded and count its points.
                 let fullPath = "#" + tr.id + htmlPath;
                 //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent);
+                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
             }
         }
     })
@@ -172,7 +172,8 @@ function calculatePercentage(earned, total){
         return "--%"
     }
     let step1 = earned/total;
-    return (100 * step1).toFixed(2);
+    let final = (100 * step1).toFixed(2);
+    return final;
 }
 
 //This method removes all spaces up to the first non space and all spaces after the last non-space in a string.
@@ -204,7 +205,8 @@ function updateCategoryTotalRow(category, weight){
                 let finalTotalPath = "#" + tr.id + totalPath;
                 let finalDetailsPath = "#" + tr.id + detailsPath;
                 //Begin changing data:
-                let percentString = String(calculatePercentage(getCategoryEarnedPoints(category),getCategoryTotalPoints(category)).toFixed(2)) + "%";
+                let roundedVar = calculatePercentage(getCategoryEarnedPoints(category),getCategoryTotalPoints(category));
+                let percentString = String(roundedVar) + "%";
                 let titleString = category + " (" + weight + "% of final grade)";
                 document.querySelector(finalTitlePath).innerHTML = "<p style=\"font-size:100%\"> <b>" + titleString + "</b> </p>";
 
@@ -302,6 +304,7 @@ function main(){
         finalGrade = calculatePercentage(getEarnedPoints(),getTotalPoints());
         updateTotalRow();
     }
+    finalGrade = Number(finalGrade).toFixed(2);
     console.log(finalGrade);
     letterGrade = displayFinalGrade(finalGrade);
     return letterGrade;
