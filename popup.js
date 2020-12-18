@@ -1,22 +1,36 @@
 /*
-THIS IS THE POPUP SCRIPT
-WHEN INVOKED, IT CALCULATES GPA WITH ALL MOST RECENT STORED GRADES.
-INCLUDES A BUTTON TO OPEN, UPDATE, THEN CLOSE ALL SAVED CLASSES AS
-A PAINLESS QUICK WAY TO UPDATE GPA.
+popup.js
+
+This file is the javascript file for the popup window. It handles all the buttons and updating the html of the popup to reflect
+any and all relevant information in chrome.storage.
+
+Authors: Jack Hughes
+
+Date of Creation: 11-8-20
+
+-JBH
  */
 
 /*
-This is a class object--makes organizing grades easier. (For GPA calculation)
+|                       |
+|    GLOBAL-VARIABLES   |
+|                       |
  */
 
-
+//classGrade: a class for grade management (makes my life and readability better)
 class classGrade {
+    //INSTANCE-DATA
+    //All of this is self explanatory
     letterGrade;
     honorsBool;
     gpaScaleFloat;
     className;
+    //These two are for the update class button which is further explained in modifier.js in global-variables
     updateCode;
     fullCode;
+
+    //CONSTRUCTORS
+    //default constructor
     constructor(nameOfClass, letterGrade, isHonors, updateCode, full) {
         this.letterGrade = letterGrade;
         this.className = nameOfClass;
@@ -25,13 +39,17 @@ class classGrade {
         this.updateCode = updateCode;
         this.fullCode = full;
     }
+
+    //METHODS
+    //get the full update code
     getFullCode(){
         return this.fullCode;
     }
+    //get the letter grade
     getLetterGrade() {
         return this.letterGrade;
     }
-
+    //get the GPA scale float
     getGpaFloat() {
         switch (this.letterGrade) {
             case "A+":
@@ -79,39 +97,52 @@ class classGrade {
         }
         return this.gpaScaleFloat;
     }
-
+    //return honors status
     isHonors() {
         return this.honorsBool;
     }
-
+    //return class name
     getName() {
         return this.className;
     }
-
+    //return update hyperlink
     getUpdateLink() {
         return 'https://kentdenver.instructure.com/courses/' + this.updateCode + '/grades';
     }
+    //return all class info
     toString(){
         return 'Name: ' + this.getName() + '. Grade: ' + this.getLetterGrade() + '. GPA: ' + this.getGpaFloat();
     }
 }
 
-//START ACTUAL SCRIPT HERE
+//numClasses: the number of classes found in storage
 let numClasses = 0;
+//classArray: array of class objects (class above)
 let classArray = [];
+//GPA: global GPA variable
 let GPA = 0;
 
+/*
+|                       |
+|    HELPER-METHODS     |
+|                       |
+ */
+
+//getGPA: gets the total GPA
 function getGPA() {
     let total = 0;
     for (let i = 0; i < numClasses; i++) {
+        //get GPA float of every stored class
         total += classArray[i].getGpaFloat();
     }
+    //calculate GPA
     GPA = total / numClasses;
     return total / numClasses;
 }
-
+//createObj: input a name and a letter grade, output a new classGrade object (class defined above)
 function createObj(nameOfClass, letterGrade) {
     let full = nameOfClass;
+    //get stuff from storage data
     let isHonors = nameOfClass.includes('__HONORS');
     let link = nameOfClass.split('___')[1];
     nameOfClass = nameOfClass.split('_')[1]; //Get just the name of the class; no encoding garbage
@@ -122,72 +153,85 @@ function createObj(nameOfClass, letterGrade) {
             //Remove parentheses.
         }
     }
-    console.log(letterGrade);
+    //console.log(letterGrade);
     return new classGrade(nameOfClass, letterGrade, isHonors, link,full);
 }
-
+//deleteClass: deletes the relevant class from the popup window and storage
 function deleteClass(classNumber) {
-    console.log("DELETE");
+    //console.log("DELETE");
     chrome.storage.sync.remove([classArray[classNumber].getFullCode()],function(){
-        console.log("Delete?");
-        window.location.reload();
+        //console.log("Delete?");
+        //delete the class
         classArray.splice(classNumber,1);
         numClasses--;
+        //reload the window so that it displays correctly
+        window.location.reload();
     });
 }
-
+//updateClass: open a new tab with the relevant hyperlink
 function updateClass(link) {
-    console.log("UPDATE");
+    //console.log("UPDATE");
     chrome.tabs.create({url: link});
 }
+//checkStorage: output an array of classGrade objects made from all classes in storage
 function checkStorage(){
     numClasses = 0;
     classArray = [];
+    //reset the html of the popup window in case # of classes shrinks, we need to wipe classes farther down
     resetHtmlLoop();
     chrome.storage.sync.get(null, function (items) {
         let entries = Object.entries(items);
         entries.forEach(entry => {
-            console.log("Trying");
-            console.log(entry[0]);
+            //console.log("Trying");
+            //console.log(entry[0]);
             if (entry[0].includes('CanvasClass_')) {
-                console.log("Class found");
+                //console.log("Class found");
+                //We found a claass!
+                //Increment numClasses
                 numClasses = numClasses +1;
+                //update classArray with a new object
                 classArray = classArray.concat(createObj(entry[0], entry[1]));
+                //update the HTML
                 htmlLoop(numClasses);
             }
         });
-
     });
 }
+//resetHtmlLoop: reset the html of the popup window to the default so that no garbage happens when deleting classes
 function resetHtmlLoop(){
+    //target element to reset
     let elem = document.getElementById("specialcooldiv");
-    elem.innerHTML = "<div style=\"margin: 0 auto\">\n" +
-        "        <h1 id=\"MAIN\" style=\"text-align:center\">Go to the grade page of each class once.</h1>\n" +
-        "    </div>\n" +
-        "    <div style = \"padding-left: 10px; padding-right: 20px; padding-bottom: 10px\">\n" +
-        "        <h4 style=\"margin-top: 10px; margin-bottom: 10px;\">Courses:</h4>\n" +
-        "        <hr class=\"classLine\">\n" +
-        "        <div id=\"CanvasGradeCourse0\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse1\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse2\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse3\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse4\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse5\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse6\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse7\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse8\"></div>\n" +
-        "        <div id=\"CanvasGradeCourse9\"></div>\n" +
-        "    </div>";
+    //reset the element to the following default html:
+    elem.innerHTML =
+    `<div style=\"margin: 0 auto\">
+        <h1 id=\"MAIN\" style=\"text-align:center\">Go to the grade page of each class once.</h1>
+    </div>
+    <div style = \"padding-left: 10px; padding-right: 20px; padding-bottom: 10px\">
+        <h4 style=\"margin-top: 10px; margin-bottom: 10px;\">Courses:</h4>
+        <hr class=\"classLine\">
+        <div id=\"CanvasGradeCourse0\"></div> 
+        <div id=\"CanvasGradeCourse1\"></div> 
+        <div id=\"CanvasGradeCourse2\"></div> 
+        <div id=\"CanvasGradeCourse3\"></div> 
+        <div id=\"CanvasGradeCourse4\"></div> 
+        <div id=\"CanvasGradeCourse5\"></div> 
+        <div id=\"CanvasGradeCourse6\"></div> 
+        <div id=\"CanvasGradeCourse7\"></div> 
+        <div id=\"CanvasGradeCourse8\"></div> 
+        <div id=\"CanvasGradeCourse9\"></div>
+    </div>`;
 }
+//htmlLoop: updates the html of the popup by adding a row for a class (runs once per class, hence the input)
 function htmlLoop(times){
+    //run once per class
     for (let i = 0; i < times; i++) {
         let updateButtonId = 'updateButton' + i;
         let removeButtonId = 'removeButton' + i;
         let courseID = 'CanvasGradeCourse' + i;
-        console.log("In loop");
-        console.log(classArray[i].toString());
+        //console.log("In loop");
+        //console.log(classArray[i].toString());
 
-
+        //html variable:
         let htmlThing =
         `<div class = 'CanvasGradeClass'>
             <div class = 'nameOfClass'>
@@ -210,29 +254,48 @@ function htmlLoop(times){
         </div>
         <hr class = "classLine">`;
 
-
+        //set target element to above html
         document.getElementById(courseID).innerHTML = htmlThing;
+        //add remove button
         document.getElementById(removeButtonId).addEventListener("click", function () {
             deleteClass(i);
         });
+        //add update button
         document.getElementById(updateButtonId).addEventListener("click", function () {
             updateClass(classArray[i].getUpdateLink());
         });
-        //GPA!!
+        //update GPA!
         document.getElementById('MAIN').textContent = 'GPA: ' + getGPA().toFixed(3);
     }
 }
-function update() {
-    GPA = 0;
-    checkStorage();
-    console.log(numClasses);
 
+/*
+|                       |
+|     MAIN-METHODS      |
+|                       |
+ */
+
+//update: updates the entire popup.
+function update() {
+    //reset GPA
+    GPA = 0;
+    //check storage (which then calls everything else)
+    checkStorage();
+    //console.log(numClasses);
 }
 
+/*
+|                       |
+|       EXECUTION       |
+|                       |
+ */
+
+//when the window is loaded or reloaded, update the popup window
 window.addEventListener('load', function () {
     update();
 });
+
+//when anything in storage is changed or something is added, update the popup window
 chrome.storage.sync.onChanged.addListener(function(){
-    console.log("Diid it.")
     update();
 });
