@@ -1,5 +1,9 @@
 # CanvasGrade: Safari Extension
 
+## Disclaimer
+
+This is in the earliest of early stages, I highly recommend staying as far away from it as possible.
+
 ## Setup Instructions
 
 There are currently no supported ways to install this extension; it is not released and I do not have an apple developer account.
