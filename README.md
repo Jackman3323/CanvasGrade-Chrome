@@ -70,7 +70,7 @@ This is the javascript file for the popup window. It modifies the html window wi
 
 This is the stylesheet file for the popup window. I use it to make formatting the window easier. This file only exists for visual purposes.
 
-### successful-installation-cws.png
+### successful-installation-image-cws.png
 
 This is the picture used above in this document to show you what a successful Chrome Web Store installation looks like.
 
