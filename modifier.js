@@ -1,27 +1,56 @@
 /*
-This is the main file.
+modifier.js
+
+This is the main file of the CanvasGrade extension. It has a single purpose: count earned points and total points and display your grade.
+It does this by accessing the html table of the website and doing some simple math. This file also saves the relevant information to Chrome's
+Storage system (which has terrible documentation). It is made to be easy to understand.
+
+Authors: Jack Hughes
+
+Date of creation: 10/5/20
+
+-JBH
 */
 
-console.log("MODIFIER.JS HAS BEEN ACTIVATED");
-let table = document.querySelector("#grades_summary > tbody");
+/*
+|                       |
+|    GLOBAL-VARIABLES   |
+|                       |
+ */
+
+//TABLE: the html element containing the html table with all assignment grades
+const TABLE = document.querySelector("#grades_summary > tbody");
+
+//outputField: the html element in which the overall grade will be outputted
 let outputField = document.querySelector("#student-grades-final");
-let totalPoints = 0;
-let earnedPoints = 0;
-let weighted = (document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2").textContent !== "Course assignments are not weighted.")
-const shortTablePath = document.getElementById("grades_summary");
-let numRuns = 0;
+
+//weighted: a boolean to determine whether or not the class contains weighted categories (true) or is total points (false).
+let weighted = (document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2").textContent !== "Course assignments are not weighted.");
+
+//SHORT_TABLE_PATH: a different way of accessing the html table element (weird details of the mutationObserver class require this)
+const SHORT_TABLE_PATH = document.getElementById("grades_summary");
+
+//finalGrade: a variable to store the final grade in the class at the end of the program.
 let finalGrade;
+
+//nameOfClass: the name of the class displayed on the canvas website e.g. 'Honors Precalculus'. Starts as an empty string literal.
 let nameOfClass = '';
+
+//nameOfClassFull: the raw unformatted name of the class
 let nameOfClassFull = String(document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a > span').textContent);
 
+//this if statement removes any of the alphanumeric garbage kent has in class names and stores the result in nameOfClass
 if(nameOfClassFull.indexOf('-') !== -1){
     let nameOfClassArray = nameOfClassFull.split('-');
     nameOfClass += nameOfClassArray[1];
 }
+//if somehow there is no alphanumeric garbage, there's no need for further formatting.
 else{
     nameOfClass+= nameOfClassFull;
 }
 
+//isHonors: a boolean variable that is true if the class is honors/AP.
+//There is potentially a better way to implement this but I have not found one yet.
 let isHonors = nameOfClass.includes(' Honors') ||
     nameOfClass.includes(' honors') ||
     nameOfClass.includes(' AP') ||
@@ -29,143 +58,94 @@ let isHonors = nameOfClass.includes(' Honors') ||
     nameOfClass.includes('Honors ') ||
     nameOfClass.includes('honors ');
 
+//Encoding for when I save the results of the program to storage, this is referenced in popup.js
 if(isHonors){
     nameOfClass += '__HONORS'; //DESIGNATES HONORS
 }
 else{
     nameOfClass += '__NORMAL'; //DESIGNATES NOT HONORS
 }
+
+//further encoding formatting; removes all spaces and replaces them with a hyphen
 nameOfClass = nameOfClass.split(' ').join('-');
+
+//more encoding stuff
+//updateCode: canvas's numeric code they have for every class. This is stored and used by the popup to update the grade information for the current
+//class in the future (meaning it just opens the class grade page in a new tab but it needs this number to do so.
 let updateCode = document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a').href;
+//fetch just the numbers of the code, no slashes or other hyperlink garbage
 updateCode = updateCode.split('/')[4];
+//add it to nameOfClass for storage at the end of the program
 nameOfClass += '___' + updateCode;
+
+//letterGrade: a variable that will store the letter grade in this class
 let letterGrade;
-//This method returns true if the assignment contains the "grade was changed" span
+
+/*
+|                       |
+|    HELPER-METHODS     |
+|                       |
+ */
+
+//This method returns true if the inputted assignment (a row in the table) contains the "grade was changed" span (meaning it's a what-if-score)
 function wasChanged(tr){
     let htmlPath = "#" + tr.id + " > td.assignment_score > div > span.tooltip > span";
     return document.querySelector(htmlPath).className === "grade changed";
 }
 
+//this function sums a portion of the table; it can be used for weighted categories (use category) or for total points (just ignore category)
+function sumTablePortion(htmlPath, category){
+    let counter = 0; //counter variable to count the points in this part of the table
+    let rows = Array.from(TABLE.rows); //Array object from the rows in the table element
+    rows.forEach(tr => {
+        let rowName = tr.className; //get the class of the current html row element
+        //If the assignment is graded or the assignment has a what-if score in it, do stuff with it. Otherwise, it's a formatting element
+        //so it should be ignored
+        //countThisAssignment: whether or not we should count this assignment (is it the right category). Starts as true for when it's total points.
+        let countThisAssignment = true;
+        if(weighted){
+            //If it's a weighted class, check the assignment against the desired category
+            //path: local variable to find the category of the given assignment
+            let path = "#" + tr.id + " > th > div";
+            //Gets the category of this assignment and compares it to inputted category
+            countThisAssignment = document.querySelector(path).textContent === category;
+        }
+        if(rowName === "student_assignment assignment_graded editable" || (rowName === "student_assignment editable" && wasChanged(tr)) && countThisAssignment){
+            //It's an assignment not a formatting row and we should be counting it
+            //Assemble full HTML path:
+            let fullPath = "#" + tr.id + htmlPath;
+            //Convert points into number and add to counter:
+            //Also removes any commas so that you can input scores over 1000 if you want to LOL
+            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
+        }
+    });
+    return counter; //Return statement.
+}
+
 //This version of the method gets the total points for the whole class
 function getTotalPoints(){
-    let counter = 0; //Point counter
-    let rows = Array.from(table.rows); //Array object made from gradeTable rows
     let htmlPath = " > td.possible.points_possible"; //HTML path to get to the total points within the table data (td)
-    rows.forEach(tr => { //tr = table row in html
-        let rowName = tr.className;
-        if(rowName === "student_assignment assignment_graded editable"){
-            //This row of the chart pertains to an assignment, not a detail/class average/rubric row.
-            //Thus, we need to add this row's possible points to the total counter
-            //Assembles full HTML path that includes the id of the table row
-            let fullPath = "#" + tr.id + htmlPath;
-            //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-        }
-        else if(rowName === "student_assignment editable" && wasChanged(tr)){
-            //This is a not graded assignment that the user has entered a what if score into
-            //Thus we must now treat it as graded and count its points.
-            let fullPath = "#" + tr.id + htmlPath;
-            //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-        }
-    })
-    return counter;
+    return sumTablePortion(htmlPath);
 }
 
 //This method returns the earned total points
 function getEarnedPoints(){
-    let counter = 0; //Point counter
-    let rows = Array.from(table.rows); //Array object made from gradeTable rows
     let htmlPath = " > td.assignment_score > div > div > span.what_if_score "; //HTML path to get to the total points within the table data (td)
-    rows.forEach(tr => { //tr = table row in html
-        let rowName = tr.className;
-        if(rowName === "student_assignment assignment_graded editable"){
-            //This row of the chart pertains to an assignment, not a detail/class average/rubric row.
-            //Thus, we need to add this row's possible points to the total counter
-            //Assembles full HTML path that includes the id of the table row
-            let fullPath = "#" + tr.id + htmlPath;
-            //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-        }
-        else if(rowName === "student_assignment editable" && wasChanged(tr)){
-            //This is a not graded assignment that the user has entered a what if score into
-            //Thus we must now treat it as graded and count its points.
-            let fullPath = "#" + tr.id + htmlPath;
-            //Converts total points text to a number, adds it to counter
-            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-        }
-    })
-    return counter;
+    return sumTablePortion(htmlPath);
 }
 
 //This version of the method goes through a category and gets total points of category
 function getCategoryTotalPoints(category){
-    let counter = 0; //Point counter
-    let rows = Array.from(table.rows); //Array object made from gradeTable rows
     let htmlPath = " > td.possible.points_possible"; //HTML path to get to the total points within the table data (td)
-    rows.forEach(tr => { //tr = table row in html
-        let rowName = tr.className;
-        if(rowName === "student_assignment assignment_graded editable"){
-            let path = "#" + tr.id + " > th > div";
-            let curCategory = document.querySelector(path).textContent; //Gets the category of this assignment
-            if(curCategory === category){
-                //This row of the chart pertains to an assignment in the passed category,
-                //not a detail/class average/rubric row.
-                //Thus, we need to add this row's possible points to the total counter
-                //Assembles full HTML path that includes the id of the table row
-                let fullPath = "#" + tr.id + htmlPath;
-                //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-            }
-        }
-        else if(rowName === "student_assignment editable" && wasChanged(tr)){
-            let curCategory = document.querySelector(path).textContent; //Gets the category of this assignment
-            if(curCategory === category){
-                //This is a not graded assignment that the user has entered a what if score into
-                //Thus we must now treat it as graded and count its points.
-                let fullPath = "#" + tr.id + htmlPath;
-                //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-            }
-        }
-    })
-    return counter;
+    return sumTablePortion(htmlPath, category);
 }
 //Returns earned points in a category
 function getCategoryEarnedPoints(category){
-    let counter = 0; //Point counter
-    let rows = Array.from(table.rows); //Array object made from gradeTable rows
     let htmlPath = " > td.assignment_score > div > div > span.what_if_score"; //HTML path to get to the total points within the table data (td)
-    rows.forEach(tr => { //tr = table row in html
-        let rowName = tr.className;
-        if(rowName === "student_assignment assignment_graded editable"){
-            let path = "#" + tr.id + " > th > div";
-            let curCategory = document.querySelector(path).textContent; //Gets the category of this assignment
-            if(curCategory === category){
-                //This row of the chart pertains to an assignment in the passed category,
-                //not a detail/class average/rubric row.
-                //Thus, we need to add this row's possible points to the total counter
-                //Assembles full HTML path that includes the id of the table row
-                let fullPath = "#" + tr.id + htmlPath;
-                //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).replaceAll(',',''));
-            }
-        }
-        else if(rowName === "student_assignment editable" && wasChanged(tr)){
-            let curCategory = document.querySelector(htmlPath).textContent; //Gets the category of this assignment
-            if(curCategory === category){
-                //This is a not graded assignment that the user has entered a what if score into
-                //Thus we must now treat it as graded and count its points.
-                let fullPath = "#" + tr.id + htmlPath;
-                //Converts total points text to a number, adds it to counter
-                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
-            }
-        }
-    })
-    return counter;
+    return sumTablePortion(htmlPath, category);
 }
 
-//This method calculates a percnentage.
+//This method calculates a percentage and rounds to two decimal places.
 function calculatePercentage(earned, total){
     if(Number.isNaN(earned) || Number.isNaN(total)){
         //If either number is NaN, return something applicable
@@ -180,11 +160,37 @@ function calculatePercentage(earned, total){
 function removeEdgeSpaces(input){
     return input.trim();
 }
+
+//This method displays the final grade that is passed into it
+function displayFinalGrade(grade){
+    //LetterGrade Section:
+    letterGrade = "F";
+    if(grade >= 60 && grade < 63){letterGrade = "(D-)";}
+    else if(grade >= 63 && grade < 67) {letterGrade = "(D)";}
+    else if(grade >= 67 && grade < 70) {letterGrade = "(D+)";}
+    else if(grade >= 70 && grade < 73) {letterGrade = "(C-)";}
+    else if(grade >= 73 && grade < 77) {letterGrade = "(C)";}
+    else if(grade >= 77 && grade < 80) {letterGrade = "(C+)";}
+    else if(grade >= 80 && grade < 83) {letterGrade = "(B-)";}
+    else if(grade >= 83 && grade < 87) {letterGrade = "(B+)";}
+    else if(grade >= 87 && grade < 90) {letterGrade = "(B+)";}
+    else if(grade >= 90 && grade < 93) {letterGrade = "(A-)";}
+    else if(grade >= 93 && grade < 97) {letterGrade = "(A)";}
+    else if(grade >= 97) {letterGrade = "(A+)";}
+    outputField.textContent = String(grade + "% " + letterGrade);
+    return letterGrade;
+}
+
+/*
+|                       |
+|     MAIN-METHODS      |
+|                       |
+ */
+
 //This method passes in a category, it goes through the table and finds the total row of the entered category.
 //Then, it formats it to say the correct thing.
 function updateCategoryTotalRow(category, weight){
-    let rows = Array.from(table.rows); //Array object made from gradeTable rows
-    let counter = 0;
+    let rows = Array.from(TABLE.rows); //Array object made from gradeTable rows
     let titlePath = " > th";
     let earnedPath = " > td.assignment_score";
     let totalPath = " > td.possible.points_possible";
@@ -205,15 +211,19 @@ function updateCategoryTotalRow(category, weight){
                 let finalTotalPath = "#" + tr.id + totalPath;
                 let finalDetailsPath = "#" + tr.id + detailsPath;
                 //Begin changing data:
+                //Percentage in this category
                 let roundedVar = calculatePercentage(getCategoryEarnedPoints(category),getCategoryTotalPoints(category));
+                //Convert that to a string
                 let percentString = String(roundedVar) + "%";
+                //String to say how much this category is worth in your overall grade
                 let titleString = category + " (" + weight + "% of final grade)";
+                //Add titleString to page
                 document.querySelector(finalTitlePath).innerHTML = "<p style=\"font-size:100%\"> <b>" + titleString + "</b> </p>";
-
+                //Add category score to page
                 document.querySelector(finalEarnedPath).innerHTML = getCategoryEarnedPoints(category).toFixed(2);
-
+                //Add total category points to page
                 document.querySelector(finalTotalPath).innerHTML = "<p style=\"font-size:130%\" title> <b>" + getCategoryTotalPoints(category) + "</b> </p>";
-
+                //Add total category earned points to page
                 document.querySelector(finalDetailsPath).innerHTML = "<p style=\"font-size:120%\"> <b>" + percentString + "</b> </p>";
 
             }
@@ -223,8 +233,7 @@ function updateCategoryTotalRow(category, weight){
 
 //This method does not pass in a category. It is for unweighted classes.
 function updateTotalRow(){
-    let rows = Array.from(table.rows); //Array object made from gradeTable rows
-    let counter = 0;
+    let rows = Array.from(TABLE.rows); //Array object made from gradeTable rows
     let titlePath = " > th";
     let earnedPath = " > td.assignment_score";
     let totalPath = " > td.possible.points_possible";
@@ -234,7 +243,7 @@ function updateTotalRow(){
     rows.forEach(tr => {
         let rowName = tr.className;
         if(foundMainRow){
-            tr.remove(); //Remove per-category rows if it's not a weighted class
+            tr.remove(); //Remove per-category rows if it's not a weighted class because the TOTAL row will always be first
         }
         else if(rowName === "student_assignment hard_coded group_total"){
             foundMainRow = true;
@@ -257,28 +266,9 @@ function updateTotalRow(){
     })
 }
 
-//This method displays the final grade that is passed into it
-function displayFinalGrade(grade){
-    //LetterGrade Section:
-    letterGrade = "F";
-    if(grade >= 60 && grade < 63){letterGrade = "(D-)";}
-    else if(grade >= 63 && grade < 67) {letterGrade = "(D)";}
-    else if(grade >= 67 && grade < 70) {letterGrade = "(D+)";}
-    else if(grade >= 70 && grade < 73) {letterGrade = "(C-)";}
-    else if(grade >= 73 && grade < 77) {letterGrade = "(C)";}
-    else if(grade >= 77 && grade < 80) {letterGrade = "(C+)";}
-    else if(grade >= 80 && grade < 83) {letterGrade = "(B-)";}
-    else if(grade >= 83 && grade < 87) {letterGrade = "(B+)";}
-    else if(grade >= 87 && grade < 90) {letterGrade = "(B+)";}
-    else if(grade >= 90 && grade < 93) {letterGrade = "(A-)";}
-    else if(grade >= 93 && grade < 97) {letterGrade = "(A)";}
-    else if(grade >= 97) {letterGrade = "(A+)";}
-    outputField.textContent = String(grade + "% " + letterGrade);
-    return letterGrade;
-}
+//This function is the main function. It calls all main functions and applicable helper functions. The end result is an updated page and storage.
 function main(){
-    console.log("PROCESS ENGAGED");
-    //main section
+    //console.log("PROCESS ENGAGED");
     finalGrade = 0.0;
     if(weighted) {
         //Class is weighted
@@ -305,48 +295,61 @@ function main(){
         updateTotalRow();
     }
     finalGrade = Number(finalGrade).toFixed(2);
-    console.log(finalGrade);
+    //console.log(finalGrade);
     letterGrade = displayFinalGrade(finalGrade);
     return letterGrade;
 }
 
+//mutationObserver--the class I use to detect mutations to the page. Whenever one thing is changed,
+//a set of mutations occurs and an array of said mutations is returned into the callback. I limit
+//the number of times it re-executes the program to one time per set of mutations for performance
+//and to limit console spam while debugging
 const mutationObserver = new MutationObserver(function (mutations) {
     let done = false; //Variable to shoddily improve performance:
     //Storage variables:
     let dataObj = {};
     let nameOfClassStorage;
     let letterGradeStorage;
+    //STOP OBSERVING, because re-execution will cause many mutations (obviously)
     mutationObserver.disconnect();
-    // No longer runs six times per textbox edit--only once (or in edge cases, twice)
-    // Does this by only recalculating on the first mutation
     mutations.forEach(function (mutation) {
-        if(!done) {
+        if (!done) {
+            //Get letterGrade and execute main function
             letterGrade = main(mutationObserver);
-            console.log(letterGrade);
+            //console.log(letterGrade);
+            //add CanvasClass_ to the start of our nameOfClass variable from the top
             nameOfClassStorage = 'CanvasClass_' + nameOfClass;
-            console.log(nameOfClassStorage);
-            letterGradeStorage =  letterGrade;
+            //console.log(nameOfClassStorage);
+            //additional variable bc chrome.storage is super weird, this bug took literal months to fix
+            letterGradeStorage = letterGrade;
+            //additional variable bc chrome.storage is super weird, this bug took literal months to fix
             dataObj[nameOfClassStorage] = letterGradeStorage;
         }
-        done = true;
+        done = true; //means it can only run once
     });
-
-        chrome.storage.sync.set(dataObj);
-        //chrome.storage.local.set({[throwVar]: throwVal2}, function(){});
-        chrome.storage.sync.get(dataObj, function (result) {
-            console.log(result[nameOfClassStorage]);
-        });
-
-
-    mutationObserver.observe(shortTablePath, {
+    //After one run of main function, update storage
+    chrome.storage.sync.set(dataObj);
+    //Begin observing again
+    mutationObserver.observe(SHORT_TABLE_PATH, {
+        //Only observes the table element and all of it's children
         childList: true,
         subtree: true
     });
 });
 
-mutationObserver.observe(shortTablePath, {
+
+/*
+|                       |
+|       EXECUTION       |
+|                       |
+ */
+
+//Run the main function for the first time--on initial loading of page
+main();
+
+//Begin observing for the first time, await mutations and when they happen, the callback at the end of MAIN-METHODS is executed to re-run main().
+mutationObserver.observe(SHORT_TABLE_PATH, {
+    //Only observes the table element and all of it's children
     childList: true,
     subtree: true
 });
-
-main(mutationObserver);
