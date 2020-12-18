@@ -39,6 +39,11 @@ let nameOfClass = '';
 //nameOfClassFull: the raw unformatted name of the class
 let nameOfClassFull = String(document.querySelector('#breadcrumbs > ul > li:nth-child(2) > a > span').textContent);
 
+//MUTATION_OBSERVER: the class used to detect mutations to the page. Will be implemented in the execution and helper methods sections.
+const MUTATION_OBSERVER = new MutationObserver(function(mutations){
+    mutationObserverCallback(mutations);
+});
+
 //this if statement removes any of the alphanumeric garbage kent has in class names and stores the result in nameOfClass
 if(nameOfClassFull.indexOf('-') !== -1){
     let nameOfClassArray = nameOfClassFull.split('-');
@@ -152,8 +157,7 @@ function calculatePercentage(earned, total){
         return "--%"
     }
     let step1 = earned/total;
-    let final = (100 * step1).toFixed(2);
-    return final;
+    return (100 * step1).toFixed(2);
 }
 
 //This method removes all spaces up to the first non space and all spaces after the last non-space in a string.
@@ -300,22 +304,22 @@ function main(){
     return letterGrade;
 }
 
-//mutationObserver--the class I use to detect mutations to the page. Whenever one thing is changed,
-//a set of mutations occurs and an array of said mutations is returned into the callback. I limit
-//the number of times it re-executes the program to one time per set of mutations for performance
-//and to limit console spam while debugging
-const mutationObserver = new MutationObserver(function (mutations) {
+//mutationObserverCallback: The callback function for my MUTATION_OBSERVER object.
+//Whenever one thing is changed, a set of mutations occurs and an array
+//of said mutations is returned into the callback. I limit the number of times it re-executes the
+//program to one time per set of mutations for performance and to limit console spam while debugging
+function mutationObserverCallback(mutations){
     let done = false; //Variable to shoddily improve performance:
     //Storage variables:
     let dataObj = {};
     let nameOfClassStorage;
     let letterGradeStorage;
     //STOP OBSERVING, because re-execution will cause many mutations (obviously)
-    mutationObserver.disconnect();
-    mutations.forEach(function (mutation) {
+    MUTATION_OBSERVER.disconnect();
+    mutations.forEach(function () {
         if (!done) {
             //Get letterGrade and execute main function
-            letterGrade = main(mutationObserver);
+            letterGrade = main(MUTATION_OBSERVER);
             //console.log(letterGrade);
             //add CanvasClass_ to the start of our nameOfClass variable from the top
             nameOfClassStorage = 'CanvasClass_' + nameOfClass;
@@ -330,13 +334,12 @@ const mutationObserver = new MutationObserver(function (mutations) {
     //After one run of main function, update storage
     chrome.storage.sync.set(dataObj);
     //Begin observing again
-    mutationObserver.observe(SHORT_TABLE_PATH, {
+    MUTATION_OBSERVER.observe(SHORT_TABLE_PATH, {
         //Only observes the table element and all of it's children
         childList: true,
         subtree: true
     });
-});
-
+}
 
 /*
 |                       |
@@ -348,7 +351,7 @@ const mutationObserver = new MutationObserver(function (mutations) {
 main();
 
 //Begin observing for the first time, await mutations and when they happen, the callback at the end of MAIN-METHODS is executed to re-run main().
-mutationObserver.observe(SHORT_TABLE_PATH, {
+MUTATION_OBSERVER.observe(SHORT_TABLE_PATH, {
     //Only observes the table element and all of it's children
     childList: true,
     subtree: true
