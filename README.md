@@ -16,7 +16,7 @@ In almost every case, the Chrome Web Store is what you're looking for, unless yo
 
 A successful installation looks like this: 
 
-![succesful-installation-CWS](https://github.com/Jackman3323/CanvasGrade-Real/raw/CHROME-Master/successful-installation-cws.png)
+![succesful-installation-image-cws](https://github.com/Jackman3323/CanvasGrade-Real/raw/CHROME-Master/successful-installation-image-cws.png)
 
 ### Direct Download Installation
 
