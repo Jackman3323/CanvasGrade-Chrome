@@ -48,13 +48,13 @@ The logo of the extension:
 
 ### manifest.json
 
-This is the "setup" file, it contains various extension information such as the version number, the name, the author's name and the permissions the extension requires to run. It also tells Chrome what files do what, for instance, questions like "which file runs the popup window?" are answered by this file.
+This is the "setup" file, it contains various extension information such as the version number, the name, the author's name, and the permissions the extension requires to function. It also tells Chrome what files do what, for instance, questions like "which file runs the popup window?" are answered by this file.
 
 ### modifier.js
 
 This is the "main" file for the portion of the extension that modifies the text of canvas's grade page. This file counts the number of earned points and total points in each category of assignment, calculates your overall grade with that information (and any relevant weighting information, if applicable) and displays that information for the user up where it used to say that such information is disabled.
 
-This file also saves the name of the class, the grade in the class, and whether or not it's an honors/AP class to Chrome's storage system for the rest of the extension to use.
+This file also saves the name of the class, the grade in the class, and whether the class is AP or Honors to Chrome's storage system for the rest of the extension to use.
 
 This file runs every time any part of any grade is modified (i.e. reverting or changing a "what-if score") which then updates both the overall grade information on that page and the information stored in Chrome's storage for the rest of the extension.
 
