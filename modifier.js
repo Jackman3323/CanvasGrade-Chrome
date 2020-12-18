@@ -106,22 +106,25 @@ function sumTablePortion(htmlPath, category){
         let rowName = tr.className; //get the class of the current html row element
         //If the assignment is graded or the assignment has a what-if score in it, do stuff with it. Otherwise, it's a formatting element
         //so it should be ignored
-        //countThisAssignment: whether or not we should count this assignment (is it the right category). Starts as true for when it's total points.
-        let countThisAssignment = true;
-        if(weighted){
-            //If it's a weighted class, check the assignment against the desired category
-            //path: local variable to find the category of the given assignment
-            let path = "#" + tr.id + " > th > div";
-            //Gets the category of this assignment and compares it to inputted category
-            countThisAssignment = document.querySelector(path).textContent === category;
-        }
-        if(rowName === "student_assignment assignment_graded editable" || (rowName === "student_assignment editable" && wasChanged(tr)) && countThisAssignment){
+        if(rowName === "student_assignment assignment_graded editable" || (rowName === "student_assignment editable" && wasChanged(tr))) {
             //It's an assignment not a formatting row and we should be counting it
-            //Assemble full HTML path:
-            let fullPath = "#" + tr.id + htmlPath;
-            //Convert points into number and add to counter:
-            //Also removes any commas so that you can input scores over 1000 if you want to LOL
-            counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',',''));
+            //countThisAssignment: whether or not we should count this assignment (is it the right category). Starts as true for when it's total points.
+            let countThisAssignment = true;
+            if (weighted) {
+                //If it's a weighted class, check the assignment against the desired category
+                //path: local variable to find the category of the given assignment
+                let path = "#" + tr.id + " > th > div";
+                //Gets the category of this assignment and compares it to inputted category
+                countThisAssignment = document.querySelector(path).textContent === category;
+            }
+            if (countThisAssignment) {
+                //If it's something we should count, count it!
+                //Assemble full HTML path:
+                let fullPath = "#" + tr.id + htmlPath;
+                //Convert points into number and add to counter:
+                //Also removes any commas so that you can input scores over 1000 if you want to LOL
+                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',', ''));
+            }
         }
     });
     return counter; //Return statement.
@@ -199,14 +202,24 @@ function updateCategoryTotalRow(category, weight){
     let earnedPath = " > td.assignment_score";
     let totalPath = " > td.possible.points_possible";
     let detailsPath = " >  td.details";
+    console.log("Attempt");
     //Now we find the index of the total row and then do some stuff with it
     rows.forEach(tr => {
         let rowName = tr.className;
         if(rowName === "student_assignment hard_coded group_total"){
             let path = "#" + tr.id + " > th";
             let curCategory = document.querySelector(path).textContent; //Gets the category of this assignment
+            let pathAfterFirstUpdate = "#" + tr.id + " > th > p"
+            let curCategoryAfterUpdate = "";
+            //Gets the category after the first update (b/c that changes the html of the title row meaning the original way no longer works
+            //in try/catch for the first run bc this element won't exist which makes chrome upset
+            try {
+                curCategoryAfterUpdate = removeEdgeSpaces(document.querySelector(pathAfterFirstUpdate).textContent.split("(")[0]);
+            }catch(exception){
+                console.log("No.");
+            }
             let curCategoryFormatted = removeEdgeSpaces(curCategory);
-            if(curCategoryFormatted === category){
+            if(curCategoryFormatted === category || curCategoryAfterUpdate === category){
                 //Total row of the desired category found.
                 //Begin updating.
                 //Paths to get to data in the row so that we can change it easily
@@ -225,6 +238,7 @@ function updateCategoryTotalRow(category, weight){
                 document.querySelector(finalTitlePath).innerHTML = "<p style=\"font-size:100%\"> <b>" + titleString + "</b> </p>";
                 //Add category score to page
                 document.querySelector(finalEarnedPath).innerHTML = getCategoryEarnedPoints(category).toFixed(2);
+                console.log(finalEarnedPath);
                 //Add total category points to page
                 document.querySelector(finalTotalPath).innerHTML = "<p style=\"font-size:130%\" title> <b>" + getCategoryTotalPoints(category) + "</b> </p>";
                 //Add total category earned points to page
@@ -280,7 +294,7 @@ function main(){
         //HTML shmorgeshborg of weights and categories
         let categoryWeightsHTML = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody");
         for (let row of categoryWeightsHTML.rows) {
-            //Set up all above arrays
+            //Set up all arrays
             let category = row.cells[0].textContent; //current category number
             let weight = parseFloat(row.cells[1].textContent);
             //Update format

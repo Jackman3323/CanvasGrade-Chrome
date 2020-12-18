@@ -238,7 +238,7 @@ function htmlLoop(times){
                 <p class = 'name'>${classArray[i].getName()}</p>
             </div>
             <div class = 'GPAOfClass'>
-                <p class = 'gpa'>${classArray[i].getGpaFloat()}</p>
+                <p class = 'gpa'>${classArray[i].getGpaFloat()}, </p>
             </div>
             <div class = 'gradeOfClass'>
                 <p class = 'grade'>${classArray[i].getLetterGrade()}</p>

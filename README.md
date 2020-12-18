@@ -34,7 +34,7 @@ DISCLAIMER: THIS IS NOT SUPPORTED AND SHOULD NOT BE USED UNLESS YOU KNOW WHAT YO
 
 6. Enable extension
 
-## File Explanation:
+## File Explanation
 
 ### background.js
 
@@ -70,6 +70,28 @@ This is the javascript file for the popup window. It modifies the html window wi
 
 This is the stylesheet file for the popup window. I use it to make formatting the window easier. This file only exists for visual purposes.
 
-### successful-installation-cws.png
+### successful-installation-image-cws.png
 
 This is the picture used above in this document to show you what a successful Chrome Web Store installation looks like.
+
+## Future Plans and Current Bugs
+
+### Bugs
+All current bugs are listed in the Known Bugs section of the most recent release, and you can always check the issues page to see any reported issues and progress on their removal.
+
+### Plans
+Future plans include:
+- A fully functional Safari port of the extension
+- Options for potential rounding of grades
+- Ability to add completely new hypothetical assignments
+- Ability to edit total earned points and total available points
+
+Distant future plans include:
+
+- Other Canvas improvements
+    * Dark mode
+    * Other visual customizations
+    * Grade + GPA on dashboard
+    * To-Do List integration
+- Firefox port of the extension (?, if there's interest...)
+- Open to suggestions, this list is not exhaustive

@@ -32,18 +32,41 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
         });
     }
 });
+var popupId;
 
-//runs popup if logo is clicked on
-chrome.browserAction.onClicked.addListener(function(tab){
-    //window sizing and running
-    chrome.windows.create({
-        url: chrome.runtime.getURL("popup.html"),
-        height: 465,
-        width: 310,
-        type: "popup"
-    }, function(win){
-        chrome.tabs.executeScript({
-            file: 'popup.js'
+// When the icon is clicked in Chrome
+chrome.browserAction.onClicked.addListener(function(tab) {
+
+    // If popupId is undefined then there isn't a popup currently open.
+    if (typeof popupId === "undefined") {
+
+        // Open the popup
+        chrome.windows.create({
+            "url": chrome.runtime.getURL("popup.html"),
+            "type": "popup",
+            "focused": true,
+            "width": 310,
+            "height": 465
+        }, function (popup) {
+            popupId = popup.id;
+            chrome.tabs.executeScript({
+                file: 'popup.js'
+            });
         });
-    });
-})
+    }
+    // There's currently a popup open
+    else {
+        // Bring it to the front so the user can see it
+        chrome.windows.update(popupId, { "focused": true });
+    }
+
+});
+
+// When a window is closed
+chrome.windows.onRemoved.addListener(function(windowId) {
+    // If the window getting closed is the popup we created
+    if (windowId === popupId) {
+        // Set popupId to undefined so we know the popups not open
+        popupId = undefined;
+    }
+});
