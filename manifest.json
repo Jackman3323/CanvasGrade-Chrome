@@ -1,10 +1,8 @@
 {
-  "header_comment":"This is the closest I could get to following the class style guide. JSON does not permit comments, but the",
-  "header_comment_line_2": "purpose of this file is explained in README.md. It's also not possible to have a multi line string which is why this is so long.",
   "manifest_version": 2,
   "name": "CanvasGrade",
-  "version": "2.0",
-  "version_name": "2.0",
+  "version": "2.1",
+  "version_name": "2.1",
   "description": "Displays hidden grades",
   "author": "Jack Hughes",
   "permissions": [
