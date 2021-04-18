@@ -173,6 +173,12 @@ function updateClass(link) {
     //console.log("UPDATE");
     chrome.tabs.create({url: link});
 }
+//updateAll: open a new tab for every class (updating every grade)
+function updateAll(){
+    for(let i = 0; i < numClasses; i++){
+        updateClass(classArray[i].getUpdateLink());
+    }
+}
 //checkStorage: output an array of classGrade objects made from all classes in storage
 function checkStorage(){
     numClasses = 0;
@@ -207,7 +213,11 @@ function resetHtmlLoop(){
         <h1 id=\"MAIN\" style=\"text-align:center\">Go to the grade page of each class once.</h1>
     </div>
     <div style = \"padding-left: 10px; padding-right: 20px; padding-bottom: 10px\">
-        <h4 style=\"margin-top: 10px; margin-bottom: 10px;\">Courses:</h4>
+        <div class = 'CanvasButtonClass'>
+            <div class = 'updateClass'>
+                <button class = 'updateButton' id = 'UpdateAll'>Update All</button>
+            </div>
+        </div>
         <hr class=\"classLine\">
         <div id=\"CanvasGradeCourse0\"></div> 
         <div id=\"CanvasGradeCourse1\"></div> 
@@ -220,6 +230,10 @@ function resetHtmlLoop(){
         <div id=\"CanvasGradeCourse8\"></div> 
         <div id=\"CanvasGradeCourse9\"></div>
     </div>`;
+    //Setup "update all" button
+    document.getElementById('UpdateAll').addEventListener("click", function () {
+        updateAll();
+    });
 }
 //htmlLoop: updates the html of the popup by adding a row for a class (runs once per class, hence the input)
 function htmlLoop(times){

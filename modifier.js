@@ -17,19 +17,76 @@ Date of creation: 10/5/20
 |    GLOBAL-VARIABLES   |
 |                       |
  */
-
 //TABLE: the html element containing the html table with all assignment grades
 const TABLE = document.querySelector("#grades_summary > tbody");
+//Storing the table html in chunks for peripherals:
+let tableHtmlFrontHalf = `
+<table class='summary' style="display: table;">
+    <thead>
+    <tr>
+        <th scope="col">Group</th>
+        <th scope="col">Weight</th>
+    </tr>
+    </thead>
+    <tbody>
+    `;
+let tableHtmlBackHalf = `
+    <tr>
+        <th scope="row">Assignments</th>
+        <td>
+            <input type="number" id="weightBox_0" value="10" class="weightBox">
+
+        </td>
+    </tr>
+    <tr style="font-weight: bold;">
+        <th scope="row">Must be 100%:</th>
+        <td>100%</td>
+    </tr>
+    </tbody>
+</table>
+`;
+let tableHtml = "";
+tableHtml = tableHtml.concat(tableHtmlFrontHalf);
+
+//Initialize stylesheet--thanks stackoverflow
+let css = 'input[type=number]{\n' +
+    '    width: 40px;\n' +
+    '}' +
+    'input[type=checkbox]{' +
+    'appearance: auto;' +
+    '}',
+    head = document.head || document.getElementsByTagName('body')[0],
+    style = document.createElement('style');
+head.appendChild(style);
+style.type = 'text/css';
+if (style.styleSheet){
+    // This is required for IE8 and below.
+    style.styleSheet.cssText = css;
+} else {
+    style.appendChild(document.createTextNode(css));
+}
+//Getting rid of the dumb random checkbox nobody uses in the peripherals area:
+document.querySelector("#only_consider_graded_assignments_wrapper").remove();
+
 
 //outputField: the html element in which the overall grade will be outputted
 let outputField = document.querySelector("#student-grades-final");
 
 //weighted: a boolean to determine whether or not the class contains weighted categories (true) or is total points (false).
+console.log(document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2").textContent);
 let weighted = (document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2").textContent !== "Course assignments are not weighted.");
-
+let weights = [];
+if(weighted){
+    let arr = Array.from(document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody").rows);
+    let i = 0;
+    arr.forEach(tr=>{
+        let path = "#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (i + 1) + ") > td";
+        weights[i] = document.querySelector(path).textContent.match(/\d+/);
+        i++;
+    });
+}
 //SHORT_TABLE_PATH: a different way of accessing the html table element (weird details of the mutationObserver class require this)
-const SHORT_TABLE_PATH = document.getElementById("grades_summary");
-
+const SHORT_TABLE_PATH = document.getElementById("not_right_side");
 //finalGrade: a variable to store the final grade in the class at the end of the program.
 let finalGrade;
 
@@ -97,6 +154,60 @@ function wasChanged(tr){
     let htmlPath = "#" + tr.id + " > td.assignment_score > div > span.tooltip > span";
     return document.querySelector(htmlPath).className === "grade changed";
 }
+
+//This function updates all of the weights (updating the global variable)
+function updateWeights(){
+    let arr = Array.from(document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody").rows);
+    let i = 0;
+    let total = 0;
+    arr.forEach(tr=>{
+        let name = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (i+1) + ") > th").textContent;
+        if(name !== "Total" && name !== "Must be 100%:") {
+            let path = "#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (i + 1) + ") > td > input";
+            weights[i] = document.querySelector(path).value;
+            total += Number(weights[i]);
+        }
+        else{
+            let path = "#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (i + 1) + ") > td";
+            let otherPath = "#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (i + 1) + ") > th";
+            document.querySelector(path).textContent = total + "%";
+            document.querySelector(otherPath).textContent = "Must be 100%:"
+        }
+        i++;
+    });
+}
+
+//this function returns an array of all category names
+function getCategories(){
+    let rows = Array.from(TABLE.rows);
+    let categories = [""];
+    let counter = 0;
+    rows.forEach(tr=>{
+        let rowName = tr.className;
+        if(rowName === "student_assignment assignment_graded editable" || (rowName === "student_assignment editable" && wasChanged(tr))){
+            let path = "#" + tr.id + " > th > div";
+            let category = document.querySelector(path).textContent;
+            if(!categories.includes(category)){
+                console.log(category);
+                categories[counter] = category;
+                counter++;
+            }
+        }
+    });
+    return categories;
+}
+let categories = getCategories();
+for(let category in categories){
+    tableHtml = tableHtml.concat(`
+    <tr>
+        <th scope="row">${category}</th>
+        <td>
+            <input type="number" id="weightBox_0" value=${100.0/categories.length} class="weightBox">
+        </td>
+    </tr>
+    `);
+}
+tableHtml = tableHtml.concat(tableHtmlBackHalf);
 
 //this function sums a portion of the table; it can be used for weighted categories (use category) or for total points (just ignore category)
 function sumTablePortion(htmlPath, category){
@@ -194,6 +305,80 @@ function displayFinalGrade(grade){
 |                       |
  */
 
+//This method (and preliminary lines) sets up the weight options area of the webpage
+let oldElem = document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2");
+console.log(weighted);
+if(weighted) {
+    let checkboxHttp =
+        `
+        <input type="checkbox" id="weight" value=${weighted} checked>
+        <label for="weighted">Assignments are weighted by group</label>
+        </input>
+    `;
+    oldElem.innerHTML = checkboxHttp;
+}
+else{
+    let checkboxHttp =
+        `
+        <input type="checkbox" id="weight" value=${weighted}>
+        <label for="weighted">Assignments are weighted by group</label>
+        </input>
+    `;
+    oldElem.innerHTML = checkboxHttp;
+}
+function initPeripherals(isFirst) {
+    let categoryWeightsHTML = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody");
+    let hideHTML = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table");
+    if(hideHTML === null){
+        document.querySelector("#assignments-not-weighted > div:nth-child(1)").appendChild(document.createElement("table"));
+        document.querySelector("#assignments-not-weighted > div:nth-child(1) > table").innerHTML = tableHtml;
+    }
+    weighted = document.getElementById("weight").checked;
+    let checkbox = document.getElementById("weight")
+    checkbox.addEventListener("input",function(){
+       checkbox.value = !checkbox.value;
+       if(checkbox.value && !isFirst){
+           //Weighted
+           weighted = true;
+           initPeripherals(true);
+           initPeripherals(false);
+       }
+       else{
+           weighted = false;
+           initPeripherals(false);
+       }
+       main();
+    });
+    if (weighted) {
+        hideHTML.style.display = "table";
+        let counter = 0;
+        let weightTable = Array.from(categoryWeightsHTML.rows);
+        weightTable.forEach(tr => {
+            let name = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (counter+1) + ") > th").textContent;
+            //console.log(name);
+            if (name !== "Total"&& name !== "Must be 100%:") {
+                //Not the total row, act as normal
+                let weightBoxHttp =
+                    `
+                     <input type="number" id="weightBox_${counter}" value=${weights[counter]} class="weightBox">
+                     </input>
+                    `;
+                let elem = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (counter+1) + ") > td");
+                elem.innerHTML = weightBoxHttp;
+                if(!isFirst) {
+                    let form = document.getElementById("weightBox_" + counter);
+                    form.addEventListener("input",function(){
+                        main();
+                    });
+                }
+            }
+            counter++;
+        });
+    }
+    else{
+        hideHTML.style.display="none";
+    }
+}
 //This method passes in a category, it goes through the table and finds the total row of the entered category.
 //Then, it formats it to say the correct thing.
 function updateCategoryTotalRow(category, weight){
@@ -202,7 +387,6 @@ function updateCategoryTotalRow(category, weight){
     let earnedPath = " > td.assignment_score";
     let totalPath = " > td.possible.points_possible";
     let detailsPath = " >  td.details";
-    console.log("Attempt");
     //Now we find the index of the total row and then do some stuff with it
     rows.forEach(tr => {
         let rowName = tr.className;
@@ -216,7 +400,6 @@ function updateCategoryTotalRow(category, weight){
             try {
                 curCategoryAfterUpdate = removeEdgeSpaces(document.querySelector(pathAfterFirstUpdate).textContent.split("(")[0]);
             }catch(exception){
-                console.log("No.");
             }
             let curCategoryFormatted = removeEdgeSpaces(curCategory);
             if(curCategoryFormatted === category || curCategoryAfterUpdate === category){
@@ -238,7 +421,6 @@ function updateCategoryTotalRow(category, weight){
                 document.querySelector(finalTitlePath).innerHTML = "<p style=\"font-size:100%\"> <b>" + titleString + "</b> </p>";
                 //Add category score to page
                 document.querySelector(finalEarnedPath).innerHTML = getCategoryEarnedPoints(category).toFixed(2);
-                console.log(finalEarnedPath);
                 //Add total category points to page
                 document.querySelector(finalTotalPath).innerHTML = "<p style=\"font-size:130%\" title> <b>" + getCategoryTotalPoints(category) + "</b> </p>";
                 //Add total category earned points to page
@@ -286,17 +468,18 @@ function updateTotalRow(){
 
 //This function is the main function. It calls all main functions and applicable helper functions. The end result is an updated page and storage.
 function main(){
-    //console.log("PROCESS ENGAGED");
     finalGrade = 0.0;
     if(weighted) {
+        updateWeights();
         //Class is weighted
         //Running total of grade
         //HTML shmorgeshborg of weights and categories
         let categoryWeightsHTML = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody");
+        let counter = 0;
         for (let row of categoryWeightsHTML.rows) {
             //Set up all arrays
             let category = row.cells[0].textContent; //current category number
-            let weight = parseFloat(row.cells[1].textContent);
+            let weight = weights[counter];
             //Update format
             updateCategoryTotalRow(category, weight);
             //Update running grade total
@@ -305,6 +488,7 @@ function main(){
                 //add curGrade to the total
                 finalGrade += curGrade
             }
+            counter++;
         }
     }
     else{
@@ -360,13 +544,15 @@ function mutationObserverCallback(mutations){
 |       EXECUTION       |
 |                       |
  */
-
+//Run the peripheral-setup functions on initial load (weight options, etc.)
+initPeripherals(true);
+initPeripherals(false);
 //Run the main function for the first time--on initial loading of page
 main();
 
 //Begin observing for the first time, await mutations and when they happen, the callback at the end of MAIN-METHODS is executed to re-run main().
 MUTATION_OBSERVER.observe(SHORT_TABLE_PATH, {
-    //Only observes the table element and all of it's children
+    //Only observes the table element and all of its children
     childList: true,
     subtree: true
 });

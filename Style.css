@@ -78,3 +78,7 @@ Date of Creation: 11-12-20
 .removeButton{
     float: right;
 }
+input[type=checkbox]{
+    width: 20px;
+    appearance: inherit;
+}
