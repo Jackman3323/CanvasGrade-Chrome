@@ -31,13 +31,6 @@ let tableHtmlFrontHalf = `
     <tbody>
     `;
 let tableHtmlBackHalf = `
-    <tr>
-        <th scope="row">Assignments</th>
-        <td>
-            <input type="number" id="weightBox_0" value="10" class="weightBox">
-
-        </td>
-    </tr>
     <tr style="font-weight: bold;">
         <th scope="row">Must be 100%:</th>
         <td>100%</td>
@@ -86,7 +79,7 @@ if(weighted){
     });
 }
 //SHORT_TABLE_PATH: a different way of accessing the html table element (weird details of the mutationObserver class require this)
-const SHORT_TABLE_PATH = document.getElementById("not_right_side");
+const SHORT_TABLE_PATH = document.getElementById("grade-summary-content");
 //finalGrade: a variable to store the final grade in the class at the end of the program.
 let finalGrade;
 
@@ -187,7 +180,7 @@ function getCategories(){
         if(rowName === "student_assignment assignment_graded editable" || (rowName === "student_assignment editable" && wasChanged(tr))){
             let path = "#" + tr.id + " > th > div";
             let category = document.querySelector(path).textContent;
-            if(!categories.includes(category)){
+            if(!categories.includes(category) && category !== ""){
                 console.log(category);
                 categories[counter] = category;
                 counter++;
@@ -197,15 +190,16 @@ function getCategories(){
     return categories;
 }
 let categories = getCategories();
-for(let category in categories){
+for(let i = 0; i < categories.length; i++){
     tableHtml = tableHtml.concat(`
     <tr>
-        <th scope="row">${category}</th>
+        <th scope="row">${categories[i].toString()}</th>
         <td>
             <input type="number" id="weightBox_0" value=${100.0/categories.length} class="weightBox">
         </td>
     </tr>
     `);
+    weights[i] = 100.0/categories.length;
 }
 tableHtml = tableHtml.concat(tableHtmlBackHalf);
 
@@ -234,7 +228,11 @@ function sumTablePortion(htmlPath, category){
                 let fullPath = "#" + tr.id + htmlPath;
                 //Convert points into number and add to counter:
                 //Also removes any commas so that you can input scores over 1000 if you want to LOL
-                counter += parseFloat(document.querySelector(fullPath).textContent.replaceAll(',', ''));
+                let DCAULF_WHY_ARE_YOU_TERRIBLE = parseFloat(document.querySelector(fullPath).textContent.replaceAll(',', ''));
+                if(isNaN(DCAULF_WHY_ARE_YOU_TERRIBLE)){
+                    DCAULF_WHY_ARE_YOU_TERRIBLE = 0;
+                }
+                counter += DCAULF_WHY_ARE_YOU_TERRIBLE;
             }
         }
     });
@@ -309,74 +307,86 @@ function displayFinalGrade(grade){
 let oldElem = document.querySelector("#assignments-not-weighted > div:nth-child(1) > h2");
 console.log(weighted);
 if(weighted) {
-    let checkboxHttp =
-        `
+    oldElem.innerHTML = `
         <input type="checkbox" id="weight" value=${weighted} checked>
         <label for="weighted">Assignments are weighted by group</label>
         </input>
     `;
-    oldElem.innerHTML = checkboxHttp;
 }
 else{
-    let checkboxHttp =
-        `
+    oldElem.innerHTML = `
         <input type="checkbox" id="weight" value=${weighted}>
         <label for="weighted">Assignments are weighted by group</label>
         </input>
     `;
-    oldElem.innerHTML = checkboxHttp;
 }
+let checkbox = document.getElementById("weight");
+if(categories.length === 1){
+    //@ Ms. Stacho (and others) if your class is not weighted, you don't need to tell canvas that it's weighted and make one category called "total points"
+    //literally doing nothing is better than whatever you are doing.
+    weighted = false;
+    checkbox.disabled = true;
+}
+checkbox.addEventListener("input", function () {
+    MUTATION_OBSERVER.disconnect();
+    checkbox.value = !checkbox.value;
+    if (checkbox.value) {
+        //Weighted
+        weighted = true;
+        initPeripherals(true);
+        initPeripherals(false);
+    } else {
+        weighted = false;
+        initPeripherals(true);
+        initPeripherals(false);
+    }
+    main();
+});
 function initPeripherals(isFirst) {
-    let categoryWeightsHTML = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody");
-    let hideHTML = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table");
-    if(hideHTML === null){
+    let categoryWeightsHTML = document.querySelector("#assignments-not-weighted > div > table > tbody");
+    let hideHTML = document.querySelector("#assignments-not-weighted > div > table");
+    if (hideHTML === null) {
         document.querySelector("#assignments-not-weighted > div:nth-child(1)").appendChild(document.createElement("table"));
         document.querySelector("#assignments-not-weighted > div:nth-child(1) > table").innerHTML = tableHtml;
     }
+    hideHTML = document.querySelector("#assignments-not-weighted > div > table");
     weighted = document.getElementById("weight").checked;
-    let checkbox = document.getElementById("weight")
-    checkbox.addEventListener("input",function(){
-       checkbox.value = !checkbox.value;
-       if(checkbox.value && !isFirst){
-           //Weighted
-           weighted = true;
-           initPeripherals(true);
-           initPeripherals(false);
-       }
-       else{
-           weighted = false;
-           initPeripherals(false);
-       }
-       main();
-    });
-    if (weighted) {
-        hideHTML.style.display = "table";
-        let counter = 0;
-        let weightTable = Array.from(categoryWeightsHTML.rows);
-        weightTable.forEach(tr => {
-            let name = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (counter+1) + ") > th").textContent;
-            //console.log(name);
-            if (name !== "Total"&& name !== "Must be 100%:") {
-                //Not the total row, act as normal
-                let weightBoxHttp =
-                    `
-                     <input type="number" id="weightBox_${counter}" value=${weights[counter]} class="weightBox">
+    let checkbox = document.getElementById("weight");
+    if(categories.length === 1){
+        //@ Ms. Stacho (and others) if your class is not weighted, you don't need to tell canvas that it's weighted and make one category called "total points"
+        //literally doing nothing is better than whatever you are doing.
+        weighted = false;
+        checkbox.disabled = true;
+    }
+    let counter = 0;
+    categoryWeightsHTML = document.querySelector("#assignments-not-weighted > div > table > tbody");
+    let weightTable = Array.from(categoryWeightsHTML.rows);
+    weightTable.forEach(tr => {
+        let name = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (counter + 1) + ") > th").textContent;
+        //console.log(name);
+        if (name !== "Total" && name !== "Must be 100%:") {
+            //Not the total row, act as normal
+            let weightBoxHttp =
+                `
+                     <input class="weightBox" type="number" id="weightBox_${counter}" value=${weights[counter]} >
                      </input>
                     `;
-                let elem = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (counter+1) + ") > td");
-                elem.innerHTML = weightBoxHttp;
-                if(!isFirst) {
-                    let form = document.getElementById("weightBox_" + counter);
-                    form.addEventListener("input",function(){
-                        main();
-                    });
-                }
+            let elem = document.querySelector("#assignments-not-weighted > div:nth-child(1) > table > tbody > tr:nth-child(" + (counter + 1) + ") > td");
+            elem.innerHTML = weightBoxHttp;
+            if (!isFirst) {
+                let form = document.getElementById("weightBox_" + counter);
+                form.addEventListener("input", function () {
+                    main();
+                });
             }
-            counter++;
-        });
+        }
+        counter++;
+    });
+    if(weighted){
+        hideHTML.style.display = "table";
     }
     else{
-        hideHTML.style.display="none";
+        hideHTML.style.display = "none";
     }
 }
 //This method passes in a category, it goes through the table and finds the total row of the entered category.
@@ -467,7 +477,9 @@ function updateTotalRow(){
 }
 
 //This function is the main function. It calls all main functions and applicable helper functions. The end result is an updated page and storage.
+let numRuns = 0;
 function main(){
+    MUTATION_OBSERVER.disconnect();
     finalGrade = 0.0;
     if(weighted) {
         updateWeights();
@@ -499,6 +511,8 @@ function main(){
     finalGrade = Number(finalGrade).toFixed(2);
     //console.log(finalGrade);
     letterGrade = displayFinalGrade(finalGrade);
+    console.log(numRuns);
+    numRuns++;
     return letterGrade;
 }
 
@@ -514,26 +528,20 @@ function mutationObserverCallback(mutations){
     let letterGradeStorage;
     //STOP OBSERVING, because re-execution will cause many mutations (obviously)
     MUTATION_OBSERVER.disconnect();
-    mutations.forEach(function () {
-        if (!done) {
-            //Get letterGrade and execute main function
-            letterGrade = main(MUTATION_OBSERVER);
-            //console.log(letterGrade);
-            //add CanvasClass_ to the start of our nameOfClass variable from the top
-            nameOfClassStorage = 'CanvasClass_' + nameOfClass;
-            //console.log(nameOfClassStorage);
-            //additional variable bc chrome.storage is super weird, this bug took literal months to fix
-            letterGradeStorage = letterGrade;
-            //additional variable bc chrome.storage is super weird, this bug took literal months to fix
-            dataObj[nameOfClassStorage] = letterGradeStorage;
-        }
-        done = true; //means it can only run once
-    });
+    //Get letterGrade and execute main function
+    letterGrade = main(MUTATION_OBSERVER);
+    //console.log(letterGrade);
+    //add CanvasClass_ to the start of our nameOfClass variable from the top
+    nameOfClassStorage = 'CanvasClass_' + nameOfClass;
+    //console.log(nameOfClassStorage);
+    //additional variable bc chrome.storage is super weird, this bug took literal months to fix
+    letterGradeStorage = letterGrade;
+    //additional variable bc chrome.storage is super weird, this bug took literal months to fix
+    dataObj[nameOfClassStorage] = letterGradeStorage;
     //After one run of main function, update storage
     chrome.storage.sync.set(dataObj);
     //Begin observing again
     MUTATION_OBSERVER.observe(SHORT_TABLE_PATH, {
-        //Only observes the table element and all of it's children
         childList: true,
         subtree: true
     });
